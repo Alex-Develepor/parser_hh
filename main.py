@@ -89,7 +89,7 @@ def get_vacancies(page=0, per_page=10):
                                 vacancy_salary_from, vacancy_salary_to, vacancy_address_city]
                         result_dict[vacancy_url] = data
             except KeyError:
-                print('Запросов к api hh > 2000')
+                print('Ошибка, HH ограничил поиск для этого адреса! Попробуйте через 30 мин')
     print('Поиск окончен')
     return result_dict
 
@@ -97,8 +97,8 @@ def get_vacancies(page=0, per_page=10):
 if __name__ == '__main__':
     print('старт')
     create_excel_file()
-    page = int(input('Введите кол-во страниц - '))
-    per_page = int(input('Количество записей на странице - '))
+    page = 5
+    per_page = 200
     data = get_vacancies(page, per_page)
     fill_xlsx_file(data)
     print('Работа выполнена')
