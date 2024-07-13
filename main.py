@@ -1,6 +1,8 @@
 import requests
 import openpyxl
 
+from datetime import datetime
+
 key_words = ['Трейдер', 'Алгоритмический трейдер', 'финансовый советник/консультант', 'инвестиционный аналитик',
              'финансовый аналитик', 'риск менеджер', 'менеджер по продажам инвестиционных продуктов',
              'персональный брокер', 'риск аналитик', 'портфельный управляющий']
@@ -26,6 +28,8 @@ def create_excel_file(
     description.value = 'Ключевые навыки'
     url = sheet['H2']
     url.value = 'Ссылка'
+    published_at = sheet['I2']
+    published_at.value = 'Время публикации'
     wb.save('vacancies.xlsx')
     wb.close()
 
@@ -50,6 +54,8 @@ def fill_xlsx_file(dict_info: dict):
         description.value = data[1]
         vacancy_url = sheet[f'H{i}']
         vacancy_url.value = url
+        published_at = sheet[f'I{i}']
+        published_at.value = data[6]
         i += 1
     wb.save('vacancies.xlsx')
     wb.close()
@@ -85,8 +91,12 @@ def get_vacancies(page=0, per_page=10):
                         vacancy_url = vacancy['alternate_url']
                         vacancy_skill = vacancy['snippet']['requirement']
                         employer_name = vacancy['employer']['name']
+                        published_time = vacancy['published_at']
+                        published_time = datetime.strptime(published_time, '%Y-%m-%dT%H:%M:%S%z').strftime(
+                            '%Y-%m-%d %H:%M:%S')
                         data = [employer_name, vacancy_skill, vacancy_name,
-                                vacancy_salary_from, vacancy_salary_to, vacancy_address_city]
+                                vacancy_salary_from, vacancy_salary_to, vacancy_address_city,
+                                published_time]
                         result_dict[vacancy_url] = data
             except KeyError:
                 print('Ошибка, HH ограничил поиск для этого адреса! Попробуйте через 30 мин')
@@ -98,7 +108,7 @@ if __name__ == '__main__':
     print('старт')
     create_excel_file()
     page = 5
-    per_page = 200
+    per_page = 100
     data = get_vacancies(page, per_page)
     fill_xlsx_file(data)
     print('Работа выполнена')
